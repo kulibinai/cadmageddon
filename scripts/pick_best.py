@@ -179,7 +179,7 @@ def same_target(line_volume, volume, about=False, pitch=None, area=None):
     An occupancy check prints the volume of the cells the target fills, which
     differs from the mesh's by up to a cell layer over its surface -- area x
     pitch -- and on an open target the mesh volume means little at all, so a
-    fixed percentage is the wrong test. Derived, not picked (R5)."""
+    fixed percentage is the wrong test. Derived, not picked."""
     tol = SAME_TARGET * volume
     if about and pitch and area:
         tol = max(tol, area * pitch)
@@ -285,7 +285,7 @@ def deliver_best(run, mesh, python=sys.executable, m2c=None):
     A version whose own check said NOT A VALID SOLID, or whose check failed, is
     never chosen. The program on disk is kept unless a version beats it; the
     replaced one is kept as reconstruction.last.py. Returns a record of what was
-    decided and why, and prints one line saying it (R2).
+    decided and why, and prints one line saying it.
     """
     run = Path(run)
     m2c = m2c or Path(__file__).resolve().parent / "m2c.py"

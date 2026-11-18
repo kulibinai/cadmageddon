@@ -397,7 +397,7 @@ def _print_rings(rings, args):
 
 
 def _detail_note(args, rings):
-    """--detail on a ring this section does not have says so (R2)."""
+    """--detail on a ring this section does not have says so."""
     names = [r.get("name") for r in rings]
     for name in getattr(args, "detail", None) or []:
         if name not in names:
@@ -2689,7 +2689,7 @@ def cmd_section(args):
     # what the bands were, then had two calls left to build five of them and
     # shipped 38% of the volume.
     #
-    # Evidence, not a verdict (A2): it says what the cross-section IS in each
+    # Evidence, not a verdict: it says what the cross-section IS in each
     # band, not which to build, in what order, or with what operation. A band
     # is not always one feature and the table does not claim it is.
     bands = _bands(spec_out, marks)
@@ -3014,7 +3014,7 @@ def _level_value(text, k, mesh, args, what):
 
 def _name_in_hint(value, k, mesh, args):
     """`B1` when a level along axis k sits at `value`, else the number: the
-    commands the tool prints for the model to run carry names too (A3)."""
+    commands the tool prints for the model to run carry names too."""
     try:
         plane = next(p for p, sp in PLANES.items() if sp["axis"] == k)
         marks, _ = feature_levels(mesh, plane, getattr(args, "samples", 900) or 900,
@@ -6775,7 +6775,7 @@ def _drop_slivers(args, full):
 # Directions a cavity's skin is looked for along, with their names.
 _SIDES = (("X+", (1, 0, 0)), ("X-", (-1, 0, 0)), ("Y+", (0, 1, 0)),
           ("Y-", (0, -1, 0)), ("Z+", (0, 0, 1)), ("Z-", (0, 0, -1)))
-# Extra pieces, through-holes and cavities placed in one `--check` (R4).
+# Extra pieces, through-holes and cavities placed in one `--check`.
 TOPOLOGY_SHOWN = 6
 
 
@@ -7891,7 +7891,7 @@ def _outside_target(target, bb, tol=None):
     wrong however good its residual looks -- a feature reaching twice the part's
     height would otherwise pass unremarked.
 
-    Evidence, not a verdict (A2): it reports which face was crossed and by how
+    Evidence, not a verdict: it reports which face was crossed and by how
     much, and does not refuse to build or guess what the model meant.
     """
     if target is None:
@@ -8019,7 +8019,7 @@ def _residual_line(target, steps, result=None, cache_dir=None):
     ask -- and it can stop after one feature and ship a part missing a whole
     region, with the information a `residual` call away.
 
-    This is evidence, not a verdict (A2). It says what is left over; it does not
+    This is evidence, not a verdict. It says what is left over; it does not
     say what to do about it, whether the part is finished, or which feature to
     build next. A residual that is empty is equally informative and equally
     silent about what to do.
@@ -8160,7 +8160,7 @@ def _residual_line(target, steps, result=None, cache_dir=None):
 
 def _target_faces(target, cache_dir, notes):
     """The target's segmentation, as the level table made it (same budget, same
-    cache), or None with a note saying why the faces go unnamed (R2)."""
+    cache), or None with a note saying why the faces go unnamed."""
     try:
         from mesh2cad.section import LEVELS_SEGMENT_BUDGET
         from mesh2cad.segment import segment_cached
@@ -8230,7 +8230,7 @@ def _gaps_between(parts, levels=None, limit=3):
 
     "the part is in pieces" alone says that, not where, and a model would go on
     typing the raw offsets that opened the gap. Bodies are
-    numbered as their volumes are listed, largest first. Nothing is moved (A2).
+    numbered as their volumes are listed, largest first. Nothing is moved.
     """
     parts = sorted(parts, key=lambda p: -p.volume)
     lo = np.min([p.bounds[0] for p in parts], axis=0)
@@ -9131,7 +9131,7 @@ def attach_negative_values(argv):
 
 def _run(args):
     # Every call is journalled, by the CLI rather than by a wrapper, so cost
-    # cannot be measured only when someone remembers to measure it (A4).
+    # cannot be measured only when someone remembers to measure it.
     try:
         journal.run_and_record(args.fn, args, sys.argv[1:])
     except (CutError, EmitError) as e:

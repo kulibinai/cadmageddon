@@ -19,7 +19,7 @@ The rule:
 - a shell with open edges, or a face whose wires don't run end to start, has no
   genus to read; its counts are kept, with `unreadable` saying why.
 
-The target has no B-rep here (R3), so `mesh_counts` reads it off its mesh.
+The target has no B-rep here, so `mesh_counts` reads it off its mesh.
 """
 
 from dataclasses import dataclass, field

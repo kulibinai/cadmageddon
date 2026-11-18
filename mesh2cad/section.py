@@ -958,7 +958,7 @@ def _with_faces(mesh, plane, samples, sweep_marks, s, sweep_tol, source,
 
 # How many of each to keep. A bellows genuinely has a mirror plane per
 # corrugation, and printing twelve of them buries the level table it is meant
-# to help (R4). The count dropped is always reported (R2).
+# to help. The count dropped is always reported.
 MAX_MIRRORS = 3
 MAX_TURNING = 3
 MAX_TAPERS = 4

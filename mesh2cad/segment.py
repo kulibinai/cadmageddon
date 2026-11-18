@@ -15,7 +15,7 @@ with its true radius and axis rather than a polygon's.
     planar patches   adjacent triangles that are exactly coplanar. The
                      tolerance is read off the mesh: coplanar neighbours agree
                      to float precision, and the nearest pair that is not
-                     coplanar differs by orders of magnitude more (R5).
+                     coplanar differs by orders of magnitude more.
     round surfaces   grown from patches: a cylinder, cone, sphere or torus is
                      accepted only while EVERY vertex of every patch it takes
                      lies on it. A fillet stops where the plane it is tangent to
@@ -42,7 +42,7 @@ floors of it. Seeding itself keeps the floor -- with the margin, every few
 facets of a spline fitted some cone or torus -- and planes keep it too.
 
 This module decides nothing about operations. It says which surfaces the part
-is made of and how they meet, and everything is evidence (A2): the levels, the
+is made of and how they meet, and everything is evidence: the levels, the
 directions and the feature hypotheses of later stages are read off it.
 """
 

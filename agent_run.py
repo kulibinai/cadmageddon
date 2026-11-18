@@ -24,7 +24,7 @@ commands run in:
 
 Everything the model is shown comes from the instruments: the text they print
 and the PNGs they write. It never sees the mesh file, the ground truth, or the
-score -- which is the same rule the contract enforces on instruments (R3), now
+score -- which is the same rule the contract enforces on instruments, now
 applied to the agent as well.
 
 THE MODEL'S OUTPUT IS UNTRUSTED INPUT. It is parsed for a single command and
@@ -726,8 +726,7 @@ def run_command(cmd, python, work, timeout=None):
     as an answer -- what it printed so far, and that it was stopped -- not as an
     exception, which would end the whole run (and lose a program already
     written) over one slow instrument on a very large mesh. The rest of the
-    budget is the model's to spend (A2); the tool's job is to say what happened
-    (R2).
+    budget is the model's to spend; the tool's job is to say what happened.
     """
     timeout = COMMAND_TIMEOUT_S if timeout is None else timeout
     try:
@@ -764,7 +763,7 @@ NOT_FINISHED = "not finished"
 def deliver(out_dir, mesh, python):
     """scripts/pick_best.py's deliver_best on this run, or a record of why it
     could not run. Never ends the run in a traceback: the program on disk is
-    still the result, and the record says it was not chosen (R2)."""
+    still the result, and the record says it was not chosen."""
     try:
         import importlib.util
         spec = importlib.util.spec_from_file_location(

@@ -343,7 +343,7 @@ def _where(args, target, bodies):
 
 def _segmentation(args, target):
     """(segmentation, note): the target's faces as the level table and `faces`
-    made them -- same cache, same 90 s budget -- or None and why not (R2)."""
+    made them -- same cache, same 90 s budget -- or None and why not."""
     from mesh2cad.section import LEVELS_SEGMENT_BUDGET
     from mesh2cad.segment import segment_cached
     out = Path(getattr(args, "out", None) or "out/agent")
@@ -361,7 +361,7 @@ def _by_voxels(args, target, built, floor, seg, seg_note, axis, why):
     """The residual by occupancy on a lattice fixed to the target, for a pair
     the boolean cannot take. Bodies are face-connected cells, named by the
     target faces within a cell and a half of them. Says which measure it is,
-    and never in the words that mean "finished" (R1)."""
+    and never in the words that mean "finished"."""
     got = leftover.voxel_residual(target, built, floor=floor, seg=seg)
     r = Result()
     r.line(f"residual of {args.mesh} against {args.built}")

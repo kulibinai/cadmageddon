@@ -44,7 +44,7 @@ AXES = "XYZ"
 # leaves room for the rest of the command; a search cut short says so and lists
 # what it found. $M2C_FACES_BUDGET overrides it; 0 means no limit.
 FACES_SEGMENT_BUDGET = 900.0
-# Wires listed, each with its copies (R4); all of them are named.
+# Wires listed, each with its copies; all of them are named.
 WIRES_SHOWN = 12
 
 
@@ -540,7 +540,7 @@ def _cover(args, mesh, seg, out):
     """`faces --cover F# [--between A,B]`: whether a surface the model means to
     build across a stretch is there across it -- e.g. that a bore runs the whole
     length of a block, rather than only along a groove. Named surfaces and
-    levels only (A3)."""
+    levels only."""
     from mesh2cad.section import PLANES, feature_levels
     s = seg.by_name(args.cover)
     if s is None:

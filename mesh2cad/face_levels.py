@@ -30,7 +30,7 @@ spline face -- gives it no level at all. The heights it spans are where the
 sweep saw area changing for no operation's sake; they are returned as ramps so
 the caller can say which of the sweep's levels they explain.
 
-Evidence, not verdicts (A2): every level carries the faces it came from, and
+Evidence, not verdicts: every level carries the faces it came from, and
 nothing here says which to build to.
 """
 

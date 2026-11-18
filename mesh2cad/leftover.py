@@ -429,7 +429,7 @@ def _family(s):
 # Three lattices, each off the face planes by a different fraction of a cell:
 # an axis-aligned lattice over an axis-aligned part puts sample points exactly
 # coplanar with faces, where ray casting is ambiguous. Fixed, so the answer is
-# reproducible; three, so it says how far a cell's worth of shift moves it (R1).
+# reproducible; three, so it says how far a cell's worth of shift moves it.
 LATTICES = ((0.137, 0.219, 0.311), (0.583, 0.671, 0.457), (0.829, 0.373, 0.761))
 
 
