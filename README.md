@@ -64,16 +64,31 @@ VLLM=$(which vllm) TP=4 PORT=8000 ./serving/serve_vllm.sh
 
 The FP8 weights (~30 GB) fit on a single 48 GB GPU (`TP=1 GPUS=0`).
 
+Any other OpenAI-compatible endpoint works too, local or hosted. Pass the
+endpoint, the model name it serves and its context length, and put the key in the
+`OPENAI_API_KEY` environment variable (or pass `--api-key`):
+
+```bash
+export OPENAI_API_KEY=<your API key>
+```
+
 ## Run
 
 One mesh, or every mesh (`.stl`, `.obj`, `.ply`, `.off`) in a directory:
 
 ```bash
+# Single mesh
 python agent_run.py --mesh data/meshes/part.stl --out runs/ \
     --base-url http://127.0.0.1:8000/v1 --model Qwen3.8-27B
 
+# Every mesh in a directory, 8 parts at a time
 python agent_run.py --mesh data/meshes/ --out runs/ --jobs 8 \
     --base-url http://127.0.0.1:8000/v1 --model Qwen3.8-27B
+
+# A cloud hosted OpenAI-compatible endpoint
+python agent_run.py --mesh data/meshes/part.stl --out runs/ \
+    --base-url https://<provider>/v1 --model <model id> --context-window <tokens>
+
 
 # FreeCAD backend, from the cadmageddon-freecad env
 python agent_run.py --backend freecad --mesh data/meshes/ --out runs_fc/ \
