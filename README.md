@@ -1,5 +1,18 @@
 # CADMAGEDDON: High-Fidelity CAD Reconstruction with Local Inference
 
+> Oleg Pavlov<sup>1</sup>, Nikita Gavrilov<sup>1</sup>, Soslan Kabisov<sup>1</sup>,
+> Gennadii Savrasov<sup>1</sup>, Andrey Kuznetsov<sup>2,3</sup>, Anton Konushin<sup>1</sup>,
+> Dmitrii Zhemchuzhnikov<sup>1,†</sup>
+>
+> <sup>1</sup>Lomonosov Moscow State University, <sup>2</sup>Innopolis University,
+> <sup>3</sup>FusionBrain Lab
+>
+> <sup>†</sup>Corresponding author
+
+<p align="center">
+  <img src="assets/agent_loop.png" alt="The CADMAGEDDON agent loop" width="100%">
+</p>
+
 **CADMAGEDDON** ([arXiv:2611.22563](https://arxiv.org/abs/2611.22563)),
 an open-source agent that reconstructs editable CAD programs from meshes and
 runs on a locally served model. Two backends share the agent loop, the
@@ -133,6 +146,10 @@ python evaluate.py --predictions preds/ --gt data/meshes/ --out results/
 # optional per-group table (e.g. complexity tercile, part family)
 python evaluate.py --predictions runs/ --groups groups.csv --out results/
 ```
+
+<p align="center">
+  <img src="assets/prediction_examples.png" alt="Reconstructions next to their input meshes" width="100%">
+</p>
 
 It prints a table and writes `results/per_part.csv` and `results/results.json`.
 Both meshes are placed in the ground truth's frame (GT bounding box centred,
