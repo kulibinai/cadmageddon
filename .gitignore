@@ -1,0 +1,15 @@
+# Meshes, run outputs and scores: large and regenerable.
+data/
+runs/
+results/
+out/
+*.log
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.DS_Store
+*.egg-info/
+.venv/

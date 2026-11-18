@@ -1,0 +1,46 @@
+# The environment the agent runs and is scored in.
+#
+#   conda env create -f environment.yml && conda activate cadmageddon
+#
+# Pinned to minor versions rather than exact builds so it resolves on both
+# osx-arm64 and linux-64 (CI). cadquery pulls OCP, which is the heavy one; the
+# rest are small.
+name: cadmageddon
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy=2.4
+  - scipy=1.17
+  - trimesh=5.0
+  # trimesh's proximity queries (mesh.nearest.on_surface, used by the symmetry
+  # instrument) import rtree lazily and only fail at call time. It arrives as a
+  # transitive dependency on a developer machine and is absent from a clean
+  # environment, which is exactly the difference CI exists to find.
+  - rtree=1.4
+  # trimesh builds the section polygons through networkx, also a lazy import
+  # that only fails when a section is actually taken.
+  - networkx=3.5
+  - shapely=2.1
+  - matplotlib=3.11
+  - pillow=12.3
+  - pyvista=0.48
+  - vtk=9.6
+  # The GMS metric (metrics/gms.py, vendored from CADENA) uses pykdtree.
+  - pykdtree
+  # The agent talks to the model through the OpenAI-compatible API (vLLM or
+  # any other server that speaks it).
+  - openai>=1.40
+  # cadquery from conda-forge, NOT pip. The pip wheel of cadquery-ocp links
+  # against pip's VTK, so pairing it with conda's VTK gives an OCP that cannot
+  # dlopen libvtkWrappingPythonCore -- cadquery imports fine on a machine that
+  # happens to have both stacks and fails on a clean one. One package manager
+  # for the whole binary chain.
+  - cadquery=2.8.0
+  - pip
+  - pip:
+      # PyPI only -- there is no manifold3d on conda-forge, and listing it as a
+      # conda dependency made the whole solve fail with "does not exist". It is
+      # trimesh's boolean backend: building a program's mesh (mesh2cad/build.py)
+      # and the boolean IoU both need it, so it is not optional.
+      - manifold3d==3.5.2
