@@ -32,6 +32,13 @@ ignore = ["E501"]
 "mesh2cad/fit.py" = ["B905", "B007"]
 "mesh2cad/section.py" = ["B905"]
 "scripts/m2c.py" = ["E702", "E741", "B904"]
+# The same, in the FreeCAD backend's copy.
+"freecad/scripts/*.py" = ["E402"]
+"freecad/mesh2cad/render.py" = ["B008", "B905"]
+"freecad/mesh2cad/fit.py" = ["B905", "B007"]
+"freecad/mesh2cad/section.py" = ["B905"]
+"freecad/scripts/m2c.py" = ["E702", "E741", "B904", "I001"]
+"freecad/mesh2cad/fc/prelude.py" = ["I001"]
 # Vendored from CADENA, kept as close to upstream as lint allows.
 "metrics/gms.py" = ["UP007"]
 "comparison.py" = ["B905"]

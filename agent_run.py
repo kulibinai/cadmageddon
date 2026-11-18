@@ -4,6 +4,10 @@
     python agent_run.py --mesh data/part.stl --out runs/ \\
         --base-url http://127.0.0.1:8000/v1 --model Qwen3.8-27B
 
+    # the FreeCAD backend, from the cadmageddon-freecad env
+    python agent_run.py --backend freecad --mesh data/part.stl --out runs_fc/ \\
+        --base-url http://127.0.0.1:8000/v1 --model Qwen3.8-27B
+
     # every mesh in a directory, four parts at a time
     python agent_run.py --mesh data/meshes/ --out runs/ --jobs 4 \\
         --base-url http://127.0.0.1:8000/v1 --model Qwen3.8-27B
@@ -15,8 +19,11 @@ commands run in:
     runs/<stem>/run/              the agent's work: reconstruction.py, trace.json,
                                   renders, outputs/ (every instrument output)
     runs/<stem>/attempt_<k>/      earlier attempts, when --attempts > 1
-    runs/<stem>/<stem>.py         the delivered CadQuery program
+    runs/<stem>/<stem>.py         the delivered program (CadQuery, or FreeCAD
+                                  with --backend freecad)
     runs/<stem>/<stem>.stl        that program exported in the input mesh's frame
+    runs/<stem>/<stem>.FCStd      its FreeCAD document, the feature tree
+                                  (--backend freecad)
     runs/<stem>/agent.log         the console of the run
     runs/<stem>/metrics.json      status, calls, time, tokens, how the run ended
 
@@ -49,7 +56,18 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+# A backend is a tree of its own: its mesh2cad package, its instruments
+# (scripts/m2c.py, export_stl.py, pick_best.py) and its prompts. The loop and
+# the batch around it are the same for both.
+BACKENDS = {"cadquery": ROOT, "freecad": ROOT / "freecad"}
+BACKEND = ROOT
 M2C = ROOT / "scripts" / "m2c.py"
+
+
+def use_backend(name):
+    global BACKEND, M2C
+    BACKEND = BACKENDS[name]
+    M2C = BACKEND / "scripts" / "m2c.py"
 MESH_SUFFIXES = (".stl", ".obj", ".ply", ".off")
 # The whole rest of the line: a work dir whose name has spaces puts them in
 # every render path, and `\S+` would cut the path at the first one.
@@ -767,7 +785,7 @@ def deliver(out_dir, mesh, python):
     try:
         import importlib.util
         spec = importlib.util.spec_from_file_location(
-            "pick_best", ROOT / "scripts" / "pick_best.py")
+            "pick_best", BACKEND / "scripts" / "pick_best.py")
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         return mod.deliver_best(out_dir, mesh, python, M2C)
@@ -779,21 +797,25 @@ def deliver(out_dir, mesh, python):
 
 
 # Options of the loop itself, forwarded unchanged to every per-part run.
-LOOP_OPTIONS = ("base_url", "model", "api_key", "max_calls", "max_tokens",
+LOOP_OPTIONS = ("backend", "base_url", "model", "api_key", "max_calls", "max_tokens",
                 "max_tokens_ceiling", "context_window", "keep_outputs",
                 "keep_image_commands", "keep_images", "temperature", "python")
 
 
 def parser():
     ap = argparse.ArgumentParser(
-        description="Reconstruct a CadQuery program from a mesh, or from every "
-                    "mesh in a directory.",
+        description="Reconstruct a CAD program (CadQuery or FreeCAD) from a "
+                    "mesh, or from every mesh in a directory.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     ap.add_argument("--mesh", required=True,
                     help="a mesh file (" + ", ".join(MESH_SUFFIXES) + ") or a "
                          "directory of them")
     ap.add_argument("--out", required=True,
                     help="output root; each mesh gets <out>/<mesh stem>/")
+    ap.add_argument("--backend", choices=sorted(BACKENDS), default="cadquery",
+                    help="the CAD kernel the agent writes for. freecad needs "
+                         "the cadmageddon-freecad env (freecad/environment.yml): "
+                         "run this script, or point --python, at its interpreter")
     ap.add_argument("--base-url", default="http://127.0.0.1:8000/v1",
                     help="OpenAI-compatible endpoint (e.g. vLLM)")
     ap.add_argument("--model", required=True,
@@ -840,6 +862,7 @@ def parser():
 
 def main(argv=None):
     args = parser().parse_args(argv)
+    use_backend(args.backend)
     if args.loop:
         sys.exit(reconstruct(args))
     sys.exit(run_batch(args))
@@ -878,8 +901,8 @@ def reconstruct(args):
     emit = out_dir / "reconstruction.py"
     emit_ref = rel(emit)
 
-    guide = (ROOT / "prompts" / "reconstruction.md").read_text()
-    tools = (ROOT / "prompts" / "instruments.md").read_text()
+    guide = (BACKEND / "prompts" / "reconstruction.md").read_text()
+    tools = (BACKEND / "prompts" / "instruments.md").read_text()
 
     system = (
         guide + "\n\n" + tools + "\n\n"
@@ -1393,7 +1416,7 @@ def _run_attempt(args, work, log, echo):
 def _pick_attempt(work, python):
     import importlib.util
     spec = importlib.util.spec_from_file_location(
-        "pick_best", ROOT / "scripts" / "pick_best.py")
+        "pick_best", BACKEND / "scripts" / "pick_best.py")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     mod.pick_attempt(work, python, M2C)
@@ -1408,7 +1431,7 @@ def run_part(args, mesh, out_root, echo):
     work.mkdir(parents=True, exist_ok=True)
     for old in [work / "run", *work.glob("attempt_*")]:
         shutil.rmtree(old, ignore_errors=True)
-    for old in ("metrics.json", f"{stem}.py", f"{stem}.stl"):
+    for old in ("metrics.json", f"{stem}.py", f"{stem}.stl", f"{stem}.FCStd"):
         (work / old).unlink(missing_ok=True)
     stage_mesh(mesh, work / "part.stl")
 
@@ -1445,8 +1468,10 @@ def run_part(args, mesh, out_root, echo):
         if not args.no_export:
             with open(work / "export.log", "w") as elog:
                 r = subprocess.run(
-                    [args.python, str(ROOT / "scripts" / "export_stl.py"), str(prog),
-                     str(work / f"{stem}.stl"), "--target", str(work / "part.stl")],
+                    [args.python, str(BACKEND / "scripts" / "export_stl.py"), str(prog),
+                     str(work / f"{stem}.stl"), "--target", str(work / "part.stl")]
+                    + (["--fcstd", str(work / f"{stem}.FCStd")]
+                       if args.backend == "freecad" else []),
                     cwd=work, stdout=elog, stderr=subprocess.STDOUT,
                     env=dict(os.environ, PYVISTA_OFF_SCREEN="true"))
             exported = r.returncode == 0 and (work / f"{stem}.stl").exists()
@@ -1455,7 +1480,8 @@ def run_part(args, mesh, out_root, echo):
         "calls": trace.get("calls"), "ending": trace.get("ending"),
         "complete": trace.get("complete"), "last_residual": trace.get("last_residual"),
         "tokens": trace.get("tokens"), "time_spent_min": round(secs / 60, 1),
-        "program": prog.exists(), "exported": exported, "model": args.model,
+        "program": prog.exists(), "exported": exported,
+        "backend": args.backend, "model": args.model,
     }
     (work / "metrics.json").write_text(json.dumps(metrics, indent=2) + "\n")
     return metrics

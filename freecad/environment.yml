@@ -1,0 +1,63 @@
+# The FreeCAD harness env, one file for every platform: Windows, Linux (WSL and
+# cluster nodes included) and macOS.
+#
+#   conda env create -f freecad/environment.yml && conda activate cadmageddon-freecad
+#   python freecad/scripts/setup_freecad_env.py
+#
+# FreeCAD comes from conda-forge, so `import FreeCAD, Part, PartDesign, Sketcher,
+# MeshPart` works in this env's own python -- headless, no GUI needed -- next to
+# numpy/trimesh/pyvista. One package manager for the whole binary chain (OCCT,
+# VTK, Qt).
+#
+# Headless rendering: not in this file. The instruments render with pyvista/VTK;
+# with no display VTK needs OSMesa, which comes from conda-forge's `mesalib<25.1`
+# (Mesa 25.1 and later dropped it). An env file cannot list a package for one
+# platform only, and on Windows mesalib would put its own opengl32.dll in front of
+# the graphics driver's. So freecad/scripts/setup_freecad_env.py adds mesalib on Linux
+# only, and mesh2cad picks the OSMesa window by itself when there is no display.
+#
+# Version: conda-forge's newest stable FreeCAD is 1.1.3. Its .FCStd files open
+# in the desktop FreeCAD 1.1.4. Bump to freecad=1.1.4 once conda-forge has it.
+#
+# python 3.12, not 3.11: conda-forge has no win-64 py311 build of freecad 1.1.3.
+#
+# NO cadquery: the harness builds, checks and meshes everything through FreeCAD.
+name: cadmageddon-freecad
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - freecad=1.1.3
+  # The rest at the versions the CadQuery harness pins in its environment.yml:
+  # the segmentation, sections and meridians are its code, and they must run on
+  # the libraries it was measured with. Move them together.
+  # BLAS and LAPACK are not pinned here: conda-forge's default (OpenBLAS) is
+  # what the CadQuery env gets too. Implementations sum in a different order, so
+  # results differ in the last bits and a threshold can flip (a meridian cut);
+  # both backends must use the same ones for their results to be comparable.
+  # The runs on the Linux cluster used BLIS for BLAS and the reference LAPACK:
+  #   conda install "libblas=3.11.0=*blis" "libcblas=3.11.0=*blis" \
+  #                 "liblapack=3.11.0=*netlib" "blis=2.0"
+  # Do not do that on macOS arm64: BLIS 2.0 there returns wrong np.dot results
+  # for a 4x4 by 4xN product, and every section comes out NaN.
+  - numpy=2.4
+  - scipy=1.17
+  - trimesh=5.0
+  # trimesh's proximity queries and section polygons import these lazily and
+  # only fail at call time.
+  - rtree=1.4
+  - networkx=3.5
+  - shapely=2.1
+  - matplotlib=3.11
+  - pillow=12.3
+  - pyvista=0.48
+  - vtk=9.6
+  - pykdtree
+  - pip
+  - pip:
+      # trimesh's boolean backend: the per-feature meshing route
+      # (mesh2cad.build._mesh_steps) needs it.
+      - manifold3d==3.5.2
+      # The agent loop's client for an OpenAI-compatible endpoint
+      # (agent_run.py --base-url).
+      - openai

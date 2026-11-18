@@ -1,8 +1,10 @@
 # CADMAGEDDON: High-Fidelity CAD Reconstruction with Local Inference
 
 **CADMAGEDDON** ([arXiv:2611.22563](https://arxiv.org/abs/2611.22563)),
-an open-source agent that reconstructs editable CadQuery programs from meshes and
-runs on a locally served model.
+an open-source agent that reconstructs editable CAD programs from meshes and
+runs on a locally served model. Two backends share the agent loop, the
+measuring instruments and the evaluation: CadQuery (the default) and FreeCAD,
+whose programs build a PartDesign feature tree saved as `.FCStd`.
 
 A vision-language model (Qwen3.8-27B in the paper) makes the decisions — which
 planes to cut, which features to build, what to correct next — by looking at
@@ -25,6 +27,7 @@ file, the ground truth or the score.
 | `metrics/` | `pair_metrics.py` (IoU / CD / GMS of one pair) and `gms.py` (vendored from CADENA) |
 | `prompts/` | The system prompt: `reconstruction.md` (method) and `instruments.md` (generated CLI reference) |
 | `serving/serve_vllm.sh` | Reference vLLM launch with the settings used for the paper's runs |
+| `freecad/` | The FreeCAD backend: its own `mesh2cad/` (with `fc/`: prelude, runtime, checks, meshing), `scripts/`, `prompts/` and `environment.yml` |
 
 ## Install
 
@@ -34,6 +37,15 @@ needed only to serve the model.
 ```bash
 conda env create -f environment.yml
 conda activate cadmageddon
+```
+
+For the FreeCAD backend, a separate env (FreeCAD 1.1.3 from conda-forge, no
+CadQuery):
+
+```bash
+conda env create -f freecad/environment.yml
+conda activate cadmageddon-freecad
+python freecad/scripts/setup_freecad_env.py   # makes `import FreeCAD` work; OSMesa on Linux
 ```
 
 Rendering is offscreen (PyVista/VTK). On a headless Linux machine set
@@ -62,6 +74,10 @@ python agent_run.py --mesh data/meshes/part.stl --out runs/ \
 
 python agent_run.py --mesh data/meshes/ --out runs/ --jobs 8 \
     --base-url http://127.0.0.1:8000/v1 --model Qwen3.8-27B
+
+# FreeCAD backend, from the cadmageddon-freecad env
+python agent_run.py --backend freecad --mesh data/meshes/ --out runs_fc/ \
+    --base-url http://127.0.0.1:8000/v1 --model Qwen3.8-27B
 ```
 
 Each mesh gets `runs/<stem>/`:
@@ -69,8 +85,9 @@ Each mesh gets `runs/<stem>/`:
 ```
 part.stl            the input, as the agent sees it
 run/                reconstruction.py, trace.json (the whole conversation), renders, outputs/
-<stem>.py           the delivered CadQuery program
+<stem>.py           the delivered program (CadQuery, or FreeCAD with --backend freecad)
 <stem>.stl          that program exported in the input mesh's frame
+<stem>.FCStd        its FreeCAD feature tree (--backend freecad)
 agent.log           console of the run
 metrics.json        status, calls, tokens, time, how the run ended
 ```
