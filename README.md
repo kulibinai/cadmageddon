@@ -10,7 +10,10 @@
 > <sup>†</sup>Corresponding author
 
 <p align="center">
-  <img src="assets/agent_loop.png" alt="The CADMAGEDDON agent loop" width="100%">
+  <img src="assets/reconstruction_replay_demo.gif" alt="Demo" width="100%">
+</p>
+<p align="center">
+  <em>Stepwise reconstruction process in FreeCAD.</em>
 </p>
 
 **CADMAGEDDON** ([arXiv:2611.22563](https://arxiv.org/abs/2611.22563)),
