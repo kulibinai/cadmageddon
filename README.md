@@ -1,11 +1,11 @@
 # CADMAGEDDON: High-Fidelity CAD Reconstruction with Local Inference
 
-> Oleg Pavlov<sup>1</sup>, Nikita Gavrilov<sup>1</sup>, Soslan Kabisov<sup>1</sup>,
-> Gennadii Savrasov<sup>1</sup>, Andrey Kuznetsov<sup>2,3</sup>, Anton Konushin<sup>1</sup>,
-> Dmitrii Zhemchuzhnikov<sup>1,†</sup>
+> Oleg Pavlov<sup>1,2</sup>, Nikita Gavrilov<sup>1</sup>, Soslan Kabisov<sup>1</sup>,
+> Gennadii Savrasov<sup>1,2</sup>, Andrey Kuznetsov<sup>3,4</sup>, Anton Konushin<sup>1,2</sup>,
+> Dmitrii Zhemchuzhnikov<sup>1,2,†</sup>
 >
-> <sup>1</sup>Lomonosov Moscow State University, <sup>2</sup>Innopolis University,
-> <sup>3</sup>FusionBrain Lab
+> <sup>1</sup>Lomonosov Moscow State University, <sup>2</sup>AXXX, Moscow, Russia,
+> <sup>3</sup>Innopolis University, <sup>4</sup>FusionBrain Lab
 >
 > <sup>†</sup>Corresponding author
 
